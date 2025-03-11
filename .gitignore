@@ -1,0 +1,19 @@
+# Ignore Unity-generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+MemoryCaptures/
+Packages/
+
+# Ignore Unity Collab
+.Collab/
+
+# Ignore User-specific settings
+UserSettings/
+.vscode/
+*.sln
+*.csproj
+*.userprefs
