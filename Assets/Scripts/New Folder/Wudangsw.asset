@@ -14,24 +14,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: WDS
   skillType: 1
-  currentLevel: 5
-  maxLevel: 5
+  currentLevel: 7
+  maxLevel: 8
   expRequired: 100
   expGrowthRate: 1.5
   unlockExtendedCombo: 1
   extendedComboSteps:
   - animIndex: 5
     animationName: Sw_skill_1
-    damageMultiplier: 0
+    damageMultiplier: 1
     attackDelay: 0
     requiredSkillLevel: 3
   - animIndex: 6
     animationName: 
-    damageMultiplier: 0
+    damageMultiplier: 1
     attackDelay: 0
     requiredSkillLevel: 4
   - animIndex: 7
     animationName: 
-    damageMultiplier: 0
+    damageMultiplier: 1
+    attackDelay: 0
+    requiredSkillLevel: 5
+  - animIndex: 8
+    animationName: 
+    damageMultiplier: 1
+    attackDelay: 0
+    requiredSkillLevel: 5
+  - animIndex: 9
+    animationName: 
+    damageMultiplier: 1
     attackDelay: 0
     requiredSkillLevel: 5

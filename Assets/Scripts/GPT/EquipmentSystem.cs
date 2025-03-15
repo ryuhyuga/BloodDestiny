@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 
 public class EquipmentSystem : MonoBehaviour
 {
@@ -68,6 +69,16 @@ public class EquipmentSystem : MonoBehaviour
             playerStats.baseDamage = currentWeapon.baseDamage;
             playerStats.baseAttackSpeed = currentWeapon.attackSpeed;
             // v.v...
+
+            // In log trước khi compute
+        Debug.Log($"[PlayerStats] Before compute: baseDamage={playerStats.baseDamage}");
+
+            // Gọi hàm tính finalStats
+            playerStats.ComputeFinalStats();
+
+            // In log sau khi compute
+            Debug.Log($"[PlayerStats] After compute: finalStats.damage={playerStats.finalStats.damage}");
+
         }
         else
         {

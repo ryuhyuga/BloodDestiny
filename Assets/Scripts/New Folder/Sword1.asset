@@ -15,29 +15,29 @@ MonoBehaviour:
   weaponName: 
   weaponType: 1
   icon: {fileID: 0}
-  baseDamage: 10
+  baseDamage: 20
   attackSpeed: 1
   critChance: 0.1
   staminaCost: 5
   defaultComboSteps:
   - animIndex: 1
     animationName: 
-    damageMultiplier: 0
+    damageMultiplier: 1
     attackDelay: 0
     requiredSkillLevel: 0
   - animIndex: 2
     animationName: 
-    damageMultiplier: 0
+    damageMultiplier: 1
     attackDelay: 0
     requiredSkillLevel: 0
   - animIndex: 3
     animationName: 
-    damageMultiplier: 0
+    damageMultiplier: 1
     attackDelay: 0
     requiredSkillLevel: 0
   - animIndex: 4
     animationName: 
-    damageMultiplier: 0
+    damageMultiplier: 1
     attackDelay: 0
     requiredSkillLevel: 0
   overrideController: {fileID: 9100000, guid: 58d05a709141f9644b885777b39bf515, type: 2}

@@ -13,8 +13,9 @@ public class PlayerInput : MonoBehaviour
     public KeyCode moveRightKey = KeyCode.D;
     public KeyCode jumpKey = KeyCode.Space;
 
-    [Header("Attack Key")]
-    public KeyCode attackKey = KeyCode.Mouse0; // 1 nút duy nhất => TryComboAttack()
+    [Header("Attack Keys")]
+    public KeyCode attackKey = KeyCode.Mouse0;   // Bắt đầu combo
+    public KeyCode comboKey = KeyCode.Mouse1;    // Tiếp combo (nếu muốn tách riêng)
 
     private ComboSystem comboSystem;
     private PlayerCombat playerCombat;
@@ -23,6 +24,7 @@ public class PlayerInput : MonoBehaviour
 
     void Awake()
     {
+        // Tự động lấy reference nếu chưa gán trong Inspector
         comboSystem = GetComponent<ComboSystem>();
         playerCombat = GetComponent<PlayerCombat>();
         rb = GetComponent<Rigidbody2D>();
@@ -50,23 +52,44 @@ public class PlayerInput : MonoBehaviour
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             }
         }
+        else
+        {
+            Debug.LogWarning("[PlayerInput] No Rigidbody2D found for movement!");
+        }
     }
 
     private void HandleAttackInput()
     {
-        // Kiểm tra null
-        if (comboSystem == null || playerCombat == null) return;
+        if (comboSystem == null || playerCombat == null)
+        {
+            Debug.LogError("[PlayerInput] comboSystem or playerCombat is null!");
+            return;
+        }
 
-        // Chỉ 1 nút => TryComboAttack
+        // Bắt đầu/tiếp tục combo bằng chuột trái
         if (Input.GetKeyDown(attackKey))
         {
-            if (comboSystem != null)
+            if (!comboSystem.isComboActive)
             {
-                comboSystem.EnqueueAttackInput();
+                comboSystem.StartCombo();
+            }
+            else if (!playerCombat.isAttacking)
+            {
+                comboSystem.ContinueCombo();
+            }
+        }
+
+        // Tách nút chuột phải => tiếp combo
+        if (Input.GetKeyDown(comboKey))
+        {
+            if (comboSystem.isComboActive && !playerCombat.isAttacking)
+            {
+                comboSystem.ContinueCombo();
             }
         }
     }
 
+    // Kiểm tra chạm ground
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground"))

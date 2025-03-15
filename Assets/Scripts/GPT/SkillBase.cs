@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+
 public enum SkillType
 {
     None,
@@ -9,14 +10,15 @@ public enum SkillType
     FistSkill,
     AxeSkill
 }
+
 [CreateAssetMenu(fileName = "NewSkill", menuName = "Skills/WeaponSkill")]
 public class SkillBase : ScriptableObject
 {
     [Header("Skill Info")]
     public string skillName;
     public SkillType skillType;
-    public int currentLevel = 1;
-    public int maxLevel = 3;
+    public int currentLevel = 1; // Cấp độ skill hiện tại
+    public int maxLevel = 3;     // Cấp độ tối đa
 
     [Header("EXP")]
     public float expRequired = 100f;
@@ -24,38 +26,51 @@ public class SkillBase : ScriptableObject
 
     [Header("Combo Extension")]
     public bool unlockExtendedCombo = false;
-    public List<ComboStep> extendedComboSteps = new List<ComboStep>
-    {
-        new ComboStep { animIndex = 4, animationName = "ExtraSlash1", damageMultiplier = 1.2f, attackDelay = 0.3f, requiredSkillLevel = 2 },
-        new ComboStep { animIndex = 5, animationName = "ExtraSlash2", damageMultiplier = 1.5f, attackDelay = 0.3f, requiredSkillLevel = 3 }
-    };
 
+    /// <summary>
+    /// Danh sách các bước combo mở rộng.
+    /// Mỗi bước có requiredSkillLevel => skill chỉ thêm bước này
+    /// nếu currentLevel >= requiredSkillLevel.
+    /// </summary>
+    public List<ComboStep> extendedComboSteps = new List<ComboStep>();
+
+    /// <summary>
+    /// Gọi khi skill lên cấp (đủ exp).
+    /// Bạn có thể thay đổi logic unlockExtendedCombo theo ý muốn.
+    /// </summary>
     private void LevelUp()
     {
         currentLevel++;
+        if (currentLevel >= 2)
+            unlockExtendedCombo = true;
+
         expRequired *= expGrowthRate;
-        if (currentLevel == 2) unlockExtendedCombo = true;
 
         Debug.Log($"[SkillBase] {skillName} leveled up to {currentLevel}!");
     }
 
     /// <summary>
-    /// Trả về combo mở rộng nếu skill đã unlock, ghép vào combo cơ bản.
+    /// Trả về combo mở rộng (nối vào baseCombo)
+    /// nếu skill đã unlock (unlockExtendedCombo = true)
+    /// và requiredSkillLevel <= currentLevel.
     /// </summary>
     public List<ComboStep> GetExtendedCombo(List<ComboStep> baseCombo)
     {
+        // Nếu skill chưa unlock extended combo => chỉ trả về combo cơ bản
         if (!unlockExtendedCombo) return baseCombo;
 
-        // Tăng số đòn combo dựa trên level
-        // Thí dụ: level 2 => +2 đòn, level 3 => +5 đòn (tuỳ ý)
-        int extraCount = (currentLevel == 2) ? 2 : (currentLevel >= 3 ? 5 : 0);
-        extraCount = Mathf.Min(extraCount, extendedComboSteps.Count);
-
+        // Tạo finalCombo chứa baseCombo (4 đòn của vũ khí)
         List<ComboStep> finalCombo = new List<ComboStep>(baseCombo);
-        for (int i = 0; i < extraCount; i++)
+
+        // Thêm những step có requiredSkillLevel <= currentLevel
+        foreach (var step in extendedComboSteps)
         {
-            finalCombo.Add(extendedComboSteps[i]);
+            if (step.requiredSkillLevel <= currentLevel)
+            {
+                finalCombo.Add(step);
+            }
         }
+
         return finalCombo;
     }
 
@@ -64,9 +79,6 @@ public class SkillBase : ScriptableObject
     /// </summary>
     public bool IsCompatibleWith(WeaponType wType)
     {
-        // Dựa trên skillType & wType, ví dụ:
-        // if (skillType == SkillType.SwordSkill && wType == WeaponType.Sword) return true;
-        // ...
         switch (skillType)
         {
             case SkillType.SwordSkill:
@@ -79,6 +91,20 @@ public class SkillBase : ScriptableObject
                 return (wType == WeaponType.Axe);
             default:
                 return false;
+        }
+    }
+
+    /// <summary>
+    /// Tăng exp cho skill, nếu đủ => LevelUp()
+    /// </summary>
+    public void GainExp(float amount)
+    {
+        if (currentLevel >= maxLevel) return;
+
+        expRequired -= amount;
+        if (expRequired <= 0)
+        {
+            LevelUp();
         }
     }
 }
