@@ -9,15 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4aec8ebc083e494d9900b0bc27f7da4, type: 3}
+  m_Script: {fileID: 11500000, guid: f1ba3fa455c69674d88a4aaef09d1886, type: 3}
   m_Name: Lotus
   m_EditorClassIdentifier: 
   powerName: 
-  damageBonus: 2
-  heavyDamageBonus: 1
-  attackSpeedBonus: 1
-  critRateBonus: 1
-  critDamageBonus: 1
-  armorBonus: 1
-  maxHealthBonus: 1
-  maxLevel: 5
+  description: 
+  damageBonus: 5
+  heavyDamageBonus: 5
+  attackSpeedBonus: 5
+  critRateBonus: 5
+  critDamageBonus: 5
+  armorBonus: 5
+  maxHealthBonus: 5
+  canStun: 0
+  canPoison: 0
+  canHealOverTime: 0

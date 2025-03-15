@@ -209,7 +209,11 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      yellowNinja - Whitehit_0: 7152120239178504318
+      yellowNinja - Whitehit_1: -1526922997693794127
+      yellowNinja - Whitehit_2: 1465851759772110302
+      yellowNinja - Whitehit_3: 4208144355251229844
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

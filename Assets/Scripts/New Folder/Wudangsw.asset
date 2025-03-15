@@ -9,14 +9,29 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19b7f275b79e2e64f9325bd84112b7cb, type: 3}
+  m_Script: {fileID: 11500000, guid: 0347c87b53bb6ea46a0b4f576c4e39bc, type: 3}
   m_Name: Wudangsw
   m_EditorClassIdentifier: 
-  skillName: wdsw
-  requireSword: 0
-  skillComboStepsLevel1:
-  - isHeavy: 1
-    forceCrit: 1
-  - isHeavy: 0
-    forceCrit: 0
-  skillComboStepsLevel3: []
+  skillName: WDS
+  skillType: 1
+  currentLevel: 5
+  maxLevel: 5
+  expRequired: 100
+  expGrowthRate: 1.5
+  unlockExtendedCombo: 1
+  extendedComboSteps:
+  - animIndex: 5
+    animationName: Sw_skill_1
+    damageMultiplier: 0
+    attackDelay: 0
+    requiredSkillLevel: 3
+  - animIndex: 6
+    animationName: 
+    damageMultiplier: 0
+    attackDelay: 0
+    requiredSkillLevel: 4
+  - animIndex: 7
+    animationName: 
+    damageMultiplier: 0
+    attackDelay: 0
+    requiredSkillLevel: 5

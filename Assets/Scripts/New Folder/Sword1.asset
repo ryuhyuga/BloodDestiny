@@ -9,23 +9,35 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e5f711616b5de44996d7f2d5150281e, type: 3}
+  m_Script: {fileID: 11500000, guid: fc4848d5a62d00d49a53f9be8732e01c, type: 3}
   m_Name: Sword1
   m_EditorClassIdentifier: 
   weaponName: 
-  weaponType: 0
-  damageBonus: 5
-  heavyDamageBonus: 10
-  attackSpeedBonus: 0
-  critRateBonus: 0
-  critDamageBonus: 0
-  armorBonus: 0
-  maxHealthBonus: 0
-  baseComboSteps:
-  - isHeavy: 0
-    forceCrit: 0
-  - isHeavy: 0
-    forceCrit: 0
-  - isHeavy: 1
-    forceCrit: 1
+  weaponType: 1
+  icon: {fileID: 0}
+  baseDamage: 10
+  attackSpeed: 1
+  critChance: 0.1
+  staminaCost: 5
+  defaultComboSteps:
+  - animIndex: 1
+    animationName: 
+    damageMultiplier: 0
+    attackDelay: 0
+    requiredSkillLevel: 0
+  - animIndex: 2
+    animationName: 
+    damageMultiplier: 0
+    attackDelay: 0
+    requiredSkillLevel: 0
+  - animIndex: 3
+    animationName: 
+    damageMultiplier: 0
+    attackDelay: 0
+    requiredSkillLevel: 0
+  - animIndex: 4
+    animationName: 
+    damageMultiplier: 0
+    attackDelay: 0
+    requiredSkillLevel: 0
   overrideController: {fileID: 9100000, guid: 58d05a709141f9644b885777b39bf515, type: 2}
