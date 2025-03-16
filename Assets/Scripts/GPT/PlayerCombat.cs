@@ -4,22 +4,33 @@ using System.Collections;
 
 public class PlayerCombat : MonoBehaviour
 {
-    public PlayerStats playerStats;         // Chứa chỉ số nhân vật (damage, speed...)
-    public EquipmentSystem equipmentSystem; // Quản lý vũ khí, skill...
-    public Animator animator;
+    public WeaponBase currentWeapon;
+    public SkillBase currentSkill;
+    private PlayerCombat playerCombat;
+
+    public PlayerStats playerStats;
+    public EquipmentSystem equipmentSystem;
+    public Animator playerAnimator;
     public LayerMask enemyLayers;
     public Transform attackPoint;
     public float attackRange = 0.5f;
 
-
-    // Thời gian hồi giữa các đòn
     public float attackCooldown { get; private set; }
-    // Đang tấn công (chưa reset cờ animation)
     public bool isAttacking { get; private set; } = false;
+
+    private void Awake()
+    {
+        playerCombat = GetComponent<PlayerCombat>();
+        equipmentSystem = GetComponent<EquipmentSystem>(); // Gán giá trị EquipmentSys
+    }
+
+    private void Start()
+    {
+        playerAnimator = GetComponentInChildren<Animator>(); // Tìm Animator trong con
+    }
 
     void Update()
     {
-        // Giảm cooldown theo thời gian
         if (attackCooldown > 0f)
         {
             attackCooldown -= Time.deltaTime;
@@ -27,53 +38,68 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
+    // Phương thức để trang bị vũ khí
+    public void EquipWeapon(WeaponBase weapon)
+    {
+        currentWeapon = weapon;
+        if (weapon != null && weapon.overrideController != null)
+        {
+            playerAnimator.runtimeAnimatorController = weapon.overrideController;
+            Debug.Log("[PlayerCombat] Animator overridden by weapon: " + weapon.weaponName);
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerCombat] No override controller for weapon: " + weapon.weaponName);
+
+        }
+    }
+
+    // Phương thức để trang bị skill (đã hợp nhất)
+    public void EquipSkill(SkillBase skill)
+    {
+        currentSkill = skill; // Cập nhật skill hiện tại
+        if (skill != null && equipmentSystem?.currentWeapon != null && skill.IsCompatibleWith(equipmentSystem.currentWeapon.weaponType))
+        {
+            if (skill.overrideController != null)
+            {
+                playerAnimator.runtimeAnimatorController = skill.overrideController;
+                Debug.Log("[PlayerCombat] Animator overridden by skill: " + skill.skillName);
+            }
+            else
+            {
+                Debug.LogWarning("[PlayerCombat] No override controller for skill: " + skill.skillName);
+            }
+        }
+        else
+        {
+            Debug.Log("[PlayerCombat] Skill not compatible with current weapon or no weapon equipped.");
+        }
+    }
+
     public void PerformAttack(ComboStep step)
     {
-        // Nếu vẫn còn cooldown => bỏ qua, log
         if (attackCooldown > 0f)
         {
             Debug.Log("[PlayerCombat] Attack on cooldown!");
             return;
         }
 
-        // 2) Tuỳ ý set param AttackIndex, Attack trigger (nếu Animator transitions)
-        animator.SetTrigger("Attack");
-        // 1) Cắt animation cũ, chơi clip mới ngay
-        // Layer = 0, NormalizedTime = 0f => bắt đầu clip từ đầu
-        animator.Play(step.animationName, 0, 0.3f);
+        playerAnimator.SetTrigger("Attack");
+        playerAnimator.Play(step.animationName, 0, 0.3f);
 
-
-        // 3) Đặt cờ đang tấn công
         isAttacking = true;
+        attackCooldown = step.animIndex > 1 ? 0.3f : 0.2f;
 
-        // 4) Tính cooldown kiểu hack n’ slash (rất ngắn)
-        //   - Đòn đầu (animIndex <= 1) => 0.2s
-        //   - Đòn combo sau (animIndex > 1) => 0.1s
-        //   - Hoặc tuỳ ý logic
-        if (step.animIndex > 1)
-            attackCooldown = 0.3f;
-        else
-            attackCooldown = 0.2f;
-
-        // 5) Tính sát thương
         float damage = playerStats.finalStats.damage * step.damageMultiplier;
         Debug.Log($"[PlayerCombat] Perform attack: {step.animationName}, dmg={damage}");
 
-        // 6) Gây sát thương (nếu cần delay)
         StartCoroutine(DealDamageAfterDelay(damage, 0.1f));
-
-        // 7) Reset cờ tấn công sau step.attackDelay
         StartCoroutine(ResetAttackFlag(step.attackDelay));
     }
 
     private IEnumerator DealDamageAfterDelay(float damage, float delay)
     {
         yield return new WaitForSeconds(delay);
-        // Tìm kẻ địch, gây sát thương...
-        // e.g. Raycast or OverlapCircle
-       
-
-        // Tìm kẻ địch trong vòng tròn
         Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
         foreach (Collider2D hit in hits)
         {
@@ -83,12 +109,6 @@ public class PlayerCombat : MonoBehaviour
                 enemy.TakeDamage(damage);
             }
         }
-     void OnDrawGizmosSelected()
-    {
-        if (attackPoint == null) return;
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
-    }
     }
 
     private IEnumerator ResetAttackFlag(float delay)
@@ -96,5 +116,12 @@ public class PlayerCombat : MonoBehaviour
         yield return new WaitForSeconds(delay);
         isAttacking = false;
         Debug.Log("[PlayerCombat] Attack flag reset");
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (attackPoint == null) return;
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 }

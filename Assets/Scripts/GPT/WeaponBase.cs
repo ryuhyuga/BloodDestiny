@@ -28,7 +28,7 @@ public class WeaponBase : ScriptableObject
     public List<ComboStep> defaultComboSteps;
 
     [Header("Animator Override")]
-    public RuntimeAnimatorController overrideController;
+    public AnimatorOverrideController overrideController;
 }
 
 [System.Serializable]

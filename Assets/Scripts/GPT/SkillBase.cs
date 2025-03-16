@@ -34,6 +34,9 @@ public class SkillBase : ScriptableObject
     /// </summary>
     public List<ComboStep> extendedComboSteps = new List<ComboStep>();
 
+    [Header("Animator Override")] // Thêm trường này để dễ quản lý trong Inspector
+    public RuntimeAnimatorController overrideController; // Thêm thuộc tính này
+
     /// <summary>
     /// Gọi khi skill lên cấp (đủ exp).
     /// Bạn có thể thay đổi logic unlockExtendedCombo theo ý muốn.
