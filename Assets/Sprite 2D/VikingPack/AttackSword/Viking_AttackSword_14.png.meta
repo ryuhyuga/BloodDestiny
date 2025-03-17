@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Viking_AttackSword_14_0: 4709073597069784524
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

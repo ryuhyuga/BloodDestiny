@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Viking_Death_06_0: 7360127910340133965
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

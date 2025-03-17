@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Viking_RunSword_04_0: 611476015877985370
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
