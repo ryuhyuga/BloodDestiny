@@ -4,7 +4,8 @@ public class PlayerAnimationComponent : MonoBehaviour
 {
     private Animator animator;
     private MovementComponent movement; // Để biết trạng thái di chuyển
-
+    private StatsComponent stats;
+    private CombatComponent combat;
     // Cache hash của các parameter/state để tối ưu
     private readonly int hashSpeed = Animator.StringToHash("Speed");
     private readonly int hashIsGrounded = Animator.StringToHash("IsGrounded");
@@ -17,8 +18,12 @@ public class PlayerAnimationComponent : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         movement = GetComponent<MovementComponent>(); // Giả sử có component này
+        combat = GetComponentInParent<CombatComponent>();
+        stats = GetComponent<StatsComponent>(); // Giả sử có component này
         GetComponent<StatsComponent>().OnDied += HandleDeath; // Lắng nghe sự kiện chết
          GetComponent<StatsComponent>().OnHealthChanged += HandleHurt; // Lắng nghe sự kiện nhận damage
+
+         if(combat) Debug.LogWarning("CombatComponent không tìm thấy trên PlayerAnimationComponent!", this);
     }
 
     private void Update()
@@ -81,15 +86,15 @@ public class PlayerAnimationComponent : MonoBehaviour
      // --- Animation Event Calls ---
      // Các hàm này sẽ được gọi từ Animation Event đặt trên các clip animation
      public void AE_ActivateHitbox() {
-         GetComponent<CombatComponent>()?.ActivateHitbox();
+         combat?.ActivateCurrentAttackHitbox();
      }
      public void AE_DeactivateHitbox() {
-          GetComponent<CombatComponent>()?.DeactivateHitbox();
+          combat?.DeactivateCurrentAttackHitbox();
      }
      public void AE_AttackFinished() {
-          GetComponent<CombatComponent>()?.FinishAttack();
+           combat?.OnAttackAnimationEnd();
           // Có thể reset combo ở đây nếu muốn chặt chẽ theo animation
-           GetComponent<ComboComponent>()?.ResetCombo();
+           //GetComponent<ComboComponent>()?.ResetCombo();
      }
      public void AE_StepSFX() {
           // Play footstep sound

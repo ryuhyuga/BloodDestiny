@@ -1,72 +1,82 @@
+// File: Assets/BloodLotus/Scripts/Components/ComboComponent.cs
+
 using UnityEngine;
 using System.Collections.Generic;
-using BloodLotus.Data; // Thư viện chứa các enum, struct, class dùng chung
+using BloodLotus.Data;
+using BloodLotus.Core;
+
+[RequireComponent(typeof(EquipmentComponent))]
+[RequireComponent(typeof(CombatComponent))]
 public class ComboComponent : MonoBehaviour
 {
+    [Header("Components")]
     private EquipmentComponent equipment;
-    private PlayerAnimationComponent playerAnim; // Component xử lý animation
-    private CombatComponent combat; // Để biết trạng thái isAttacking
+    private CombatComponent combat;
+    private PlayerAnimationComponent playerAnim;
 
-    private List<ComboStepData> currentComboSequence; // Combo đang thực thi (base hoặc extended)
-    private int currentStepIndex = -1; // -1: Chưa bắt đầu combo
-    private float timeSinceLastInput = 0f;
-    private float currentInputWindow = 0f; // Thời gian chờ input của bước hiện tại
+    [Header("Combo Settings")]
+    [Tooltip("Thời gian tối đa (giây) sau bước combo cuối cùng hoặc khi không nhấn nút, combo sẽ tự động reset.")]
+    public float comboResetTime = 0.5f; // Thời gian chờ để reset nếu không spam
+
+    [Header("Combo State")]
+    private List<ComboStepData> currentComboSequence;
+    private int currentStepIndex = -1;
+    private float timeSinceLastAttackInput = 0f; // Đổi tên biến để rõ nghĩa hơn
 
     public bool IsInCombo => currentStepIndex >= 0;
 
-    private void Awake()
+    void Awake()
     {
         equipment = GetComponent<EquipmentComponent>();
-        playerAnim = GetComponent<PlayerAnimationComponent>();
         combat = GetComponent<CombatComponent>();
+        playerAnim = GetComponent<PlayerAnimationComponent>();
     }
 
-    private void Update()
+    void Update()
     {
-        if (IsInCombo)
+        // Tăng bộ đếm thời gian kể từ lần tấn công cuối
+        timeSinceLastAttackInput += Time.deltaTime;
+
+        // Nếu đang trong combo và đã quá thời gian chờ reset -> Reset combo
+        if (IsInCombo && timeSinceLastAttackInput > comboResetTime)
         {
-            timeSinceLastInput += Time.deltaTime;
-            // Nếu hết thời gian chờ input -> Reset combo
-            if (timeSinceLastInput > currentInputWindow)
-            {
-                ResetCombo();
-            }
+            ResetCombo();
         }
     }
 
-    public void AttemptAttack() // Gọi từ Input hoặc CombatSystem
+    /// <summary>
+    /// Được gọi bởi Input Receiver khi có tín hiệu tấn công.
+    /// Ưu tiên chuyển sang bước tiếp theo nếu có thể.
+    /// </summary>
+    public void AttemptAttack()
     {
-        if (!equipment || !equipment.CurrentWeapon) return; // Cần vũ khí
+        // Điều kiện cơ bản để tấn công
+        if (!equipment || equipment.CurrentWeapon == null) return;
+        // Không cần kiểm tra combat.CanAttack() ở đây nữa nếu muốn cho phép ngắt animation
 
-        // Nếu đang không trong combo -> Bắt đầu combo mới
+        // Reset bộ đếm thời gian chờ reset mỗi khi nhấn nút tấn công
+        timeSinceLastAttackInput = 0f;
+
+        // Nếu chưa trong combo -> Bắt đầu combo mới
         if (!IsInCombo)
         {
-            StartCombo();
+            StartNewCombo();
         }
-        // Nếu đang trong combo và trong thời gian chờ input -> Tiến tới bước tiếp theo
-        else if (timeSinceLastInput <= currentInputWindow)
+        // Nếu đã trong combo -> Chuyển sang bước tiếp theo
+        else
         {
             AdvanceComboStep();
         }
-        // Else: Input quá trễ -> Reset combo (có thể xử lý mềm dẻo hơn)
-        // else {
-        //     ResetCombo();
-        // }
     }
 
-    private void StartCombo()
+    private void StartNewCombo()
     {
-        if (!combat.CanAttack()) return; // Kiểm tra xem có thể tấn công không (vd: không bị stun)
-
-        currentComboSequence = equipment.CurrentWeapon.baseComboSequence; // Lấy combo gốc
-        // TODO: Kiểm tra Skill có extend combo này không và level đủ chưa
-        // if (CheckSkillExtension(equipment.CurrentWeapon.baseComboSequence, out var extendedSequence)) {
-        //     currentComboSequence = extendedSequence;
-        // }
+        currentComboSequence = equipment.CurrentWeapon.baseComboSequence;
+        // TODO: Logic lấy combo mở rộng nếu cần
 
         if (currentComboSequence == null || currentComboSequence.Count == 0)
         {
-            Debug.LogWarning("Weapon has no base combo sequence defined!");
+            Debug.LogWarning($"Vũ khí {equipment.CurrentWeapon.weaponName} không có Base Combo Sequence!");
             return;
         }
 
@@ -76,79 +86,74 @@ public class ComboComponent : MonoBehaviour
 
     private void AdvanceComboStep()
     {
-        currentStepIndex++;
-
-        // Kiểm tra xem còn bước tiếp theo trong sequence không
-        if (currentStepIndex < currentComboSequence.Count)
+        // Nếu đang ở bước cuối cùng -> Quay lại bước đầu tiên (hoặc reset tùy thiết kế)
+        if (currentStepIndex >= currentComboSequence.Count - 1)
         {
-            ExecuteComboStep(currentStepIndex);
+            // Lựa chọn 1: Reset về trạng thái không combo
+            // ResetCombo();
+            // return;
+
+            // Lựa chọn 2: Quay vòng lại từ đầu chuỗi combo
+            currentStepIndex = 0;
+
+            // Lựa chọn 3: Reset về Idle (Nếu ResetCombo() chỉ reset index mà không thoát hẳn)
+            // currentStepIndex = -1; // -> Sẽ khiến lần nhấn tiếp theo gọi StartNewCombo
+            // ResetCombo(); return; // Đơn giản nhất là reset hoàn toàn
         }
         else
         {
-            // Đã hoàn thành sequence -> Reset
-            Debug.Log("Combo Finished!");
-            ResetCombo();
+            // Tăng chỉ số lên bước tiếp theo
+            currentStepIndex++;
         }
+
+        // Thực thi bước combo mới (hoặc bước đầu tiên nếu quay vòng)
+        ExecuteComboStep(currentStepIndex);
     }
 
     private void ExecuteComboStep(int stepIndex)
     {
-         if (!combat.CanAttack()) { // Kiểm tra lại trước khi thực hiện step
-             ResetCombo();
+        // Kiểm tra lại index hợp lệ (đề phòng trường hợp logic Advance thay đổi)
+         if (stepIndex < 0 || currentComboSequence == null || stepIndex >= currentComboSequence.Count) {
+             ResetCombo(); // Reset nếu index không hợp lệ
              return;
          }
 
         ComboStepData step = currentComboSequence[stepIndex];
 
-        Debug.Log($"Executing Combo Step: {stepIndex + 1}/{currentComboSequence.Count} - Anim: {step.animationTrigger}");
+        // Debug.Log($"Executing Combo Step: {stepIndex + 1}/{currentComboSequence.Count} - Anim: {step.animationTrigger}");
 
-        // Trigger Animation
-        playerAnim?.PlayAttackAnimation(step.animationTrigger);
-
-        // Bắt đầu tính thời gian chờ input cho bước *tiếp theo* (nếu có)
-        timeSinceLastInput = 0f;
-        currentInputWindow = step.inputWindow;
-
-        // Thông báo cho CombatComponent/System biết thông tin bước này để xử lý hitbox, damage, hitstop
-        combat?.ProcessAttackStep(step);
-
-        // Nếu đây là bước cuối cùng, không cần chờ input nữa (hoặc đặt window = 0)
-        if (stepIndex == currentComboSequence.Count - 1)
+        // Kích hoạt animation NGAY LẬP TỨC (Animator sẽ xử lý việc ngắt animation cũ)
+        if (playerAnim != null && !string.IsNullOrEmpty(step.animationTrigger))
         {
-            currentInputWindow = 0f; // Hoặc một giá trị rất nhỏ
-            // Reset combo sau khi animation của bước cuối hoàn thành? (Cần cơ chế chờ)
-             // Invoke(nameof(ResetComboAfterDelay), playerAnim.GetCurrentAnimationLength()); // Ví dụ
+            playerAnim.PlayAttackAnimation(step.animationTrigger);
         }
+        else if (string.IsNullOrEmpty(step.animationTrigger))
+        {
+             Debug.LogWarning($"Bước combo {stepIndex} thiếu animationTrigger!");
+        }
+
+        // Thông báo cho CombatComponent để xử lý logic hitbox/damage cho bước này
+        // CombatComponent cần được thiết kế để có thể xử lý việc nhận step mới ngay cả khi step cũ chưa xong animation
+        combat.InitiateAttackStep(step);
+
+        // Không cần quản lý inputWindow trong logic này nữa,
+        // vì việc chuyển tiếp xảy ra ngay khi nhấn nút.
+        // Việc reset sẽ do timeSinceLastAttackInput và comboResetTime xử lý.
     }
 
+    /// <summary>
+    /// Reset trạng thái combo về ban đầu (không còn trong chuỗi combo).
+    /// </summary>
     public void ResetCombo()
     {
-        if (IsInCombo) // Chỉ reset nếu đang thực sự trong combo
-        {
-             Debug.Log("Combo Reset.");
-            currentStepIndex = -1;
-            timeSinceLastInput = 0f;
-            currentInputWindow = 0f;
-            currentComboSequence = null;
-            combat?.FinishAttack(); // Thông báo cho CombatComponent là đã kết thúc tấn công/combo
-        }
-    }
+        if (!IsInCombo) return;
 
-    // Hàm kiểm tra và lấy combo mở rộng từ Skill (Cần logic chi tiết hơn)
-    // private bool CheckSkillExtension(List<ComboStepData> baseCombo, out List<ComboStepData> extendedSequence)
-    // {
-    //     extendedSequence = new List<ComboStepData>(baseCombo); // Bắt đầu bằng base
-    //     foreach (var skill in equipment.EquippedSkills)
-    //     {
-    //         if (skill.compatibleWeaponType == equipment.CurrentWeapon.weaponType &&
-    //             skill.requiredLevel <= GetSkillLevel(skill)) // Giả sử có hàm GetSkillLevel
-    //         {
-    //              // Logic ghép nối extension vào base combo
-    //              // Ví dụ: Thêm các bước từ skill.comboExtensionSteps vào cuối
-    //              extendedSequence.AddRange(skill.comboExtensionSteps);
-    //              return true; // Chỉ áp dụng extension của 1 skill? Hay kết hợp?
-    //         }
-    //     }
-    //     return false;
-    // }
+        // Debug.Log("Combo Reset.");
+        currentStepIndex = -1;
+        // timeSinceLastAttackInput vẫn tiếp tục đếm trong Update
+        currentComboSequence = null;
+
+        // Thông báo cho CombatComponent (tùy chọn, có thể không cần nếu không có trạng thái đặc biệt)
+        combat.FinishAttackSequence(); // Có thể không cần hàm này nữa
+    }
 }

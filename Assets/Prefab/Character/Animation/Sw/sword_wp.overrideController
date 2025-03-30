@@ -7,5 +7,11 @@ AnimatorOverrideController:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: sword_wp
-  m_Controller: {fileID: 0}
-  m_Clips: []
+  m_Controller: {fileID: 9100000, guid: 58d05a709141f9644b885777b39bf515, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 9f7f8fc3a6b20124d87031014066620f, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 818c3b4c11d817c4e804b81d09b8f25d, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 78023521f9d43174ba5ba12fa91e3940, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: ae06ec78babfb5b48a1617d949834a62, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: df601077e43e422469f21a4185b4e41a, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: d935dbde8706c444a9a515404782e820, type: 2}

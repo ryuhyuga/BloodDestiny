@@ -1,0 +1,101 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a788eec0970a524cb72c7fc995a1a9b, type: 3}
+  m_Name: Basic_skill
+  m_EditorClassIdentifier: 
+  skillName: New Skill
+  compatibleWeaponType: 0
+  requiredLevel: 1
+  comboExtensionSteps:
+  - stepName: 
+    animationTrigger: 
+    inputWindow: 0
+    damageMultiplier: 0
+    hitstopDuration: 0
+    vfxOnHitPrefab: {fileID: 0}
+    sfxOnHit: {fileID: 0}
+    sfxOnSwing: {fileID: 0}
+    effectType: 0
+    effectChance: 0
+    effectDuration: 0
+    effectPotency: 0
+  - stepName: 
+    animationTrigger: 
+    inputWindow: 0
+    damageMultiplier: 0
+    hitstopDuration: 0
+    vfxOnHitPrefab: {fileID: 0}
+    sfxOnHit: {fileID: 0}
+    sfxOnSwing: {fileID: 0}
+    effectType: 0
+    effectChance: 0
+    effectDuration: 0
+    effectPotency: 0
+  - stepName: 
+    animationTrigger: 
+    inputWindow: 0
+    damageMultiplier: 0
+    hitstopDuration: 0
+    vfxOnHitPrefab: {fileID: 0}
+    sfxOnHit: {fileID: 0}
+    sfxOnSwing: {fileID: 0}
+    effectType: 0
+    effectChance: 0
+    effectDuration: 0
+    effectPotency: 0
+  - stepName: 
+    animationTrigger: 
+    inputWindow: 0
+    damageMultiplier: 0
+    hitstopDuration: 0
+    vfxOnHitPrefab: {fileID: 0}
+    sfxOnHit: {fileID: 0}
+    sfxOnSwing: {fileID: 0}
+    effectType: 0
+    effectChance: 0
+    effectDuration: 0
+    effectPotency: 0
+  - stepName: 
+    animationTrigger: 
+    inputWindow: 0
+    damageMultiplier: 0
+    hitstopDuration: 0
+    vfxOnHitPrefab: {fileID: 0}
+    sfxOnHit: {fileID: 0}
+    sfxOnSwing: {fileID: 0}
+    effectType: 0
+    effectChance: 0
+    effectDuration: 0
+    effectPotency: 0
+  magicDamage: 5
+  damageType: 1
+  effectOnHit: 0
+  effectChance: 0
+  effectDuration: 0
+  animationOverrideController: {fileID: 0}
+  icon: {fileID: 0}
+  description: 
+  manaCost: 30
+  staminaCost: 10
+  cooldown: 2
+  useChargeSystem: 0
+  maxCharges: 3
+  chargeRegenRate: 1
+  animationTriggerName: 
+  vfxPrefab: {fileID: 0}
+  sfxClip: {fileID: 0}
+  targetType: 1
+  skillRange: 5
+  aoeRadius: 0
+  applyForce: 0
+  forceDirection: {x: 0, y: 0}
+  forceMagnitude: 10

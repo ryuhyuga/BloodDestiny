@@ -74,6 +74,7 @@ public class PlayerInputReceiver : MonoBehaviour
             if (comboComponent != null)
             {
                 comboComponent.AttemptAttack(); // Yêu cầu thực hiện tấn công
+                Debug.Log("Attack Input Received"); // Bỏ comment để debug
             }
             else
             {

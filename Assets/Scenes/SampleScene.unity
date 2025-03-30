@@ -1091,6 +1091,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01a0734f0cf810941a3dcacacfe97769, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <CurrentWeapon>k__BackingField: {fileID: 0}
+  <EquippedSkills>k__BackingField: []
+  <CurrentInnerPower>k__BackingField: {fileID: 0}
+  startingWeapon: {fileID: 11400000, guid: a2a88e98f2cab9d4aaaedf63eebfdae5, type: 2}
 --- !u!114 &1476970163
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1103,6 +1107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e83fcc72c5d95e4397018fbe52027b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  comboResetTime: 0.5
 --- !u!114 &1476970164
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1115,7 +1120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 501dde43bcc419f45bae631be023f40f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackHitbox: {fileID: 1685295128}
+  attackHitboxObject: {fileID: 1685295128}
 --- !u!1 &1685295128
 GameObject:
   m_ObjectHideFlags: 0
@@ -1125,8 +1130,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1685295129}
+  - component: {fileID: 1685295131}
+  - component: {fileID: 1685295130}
   m_Layer: 0
-  m_Name: 'attackPoint '
+  m_Name: WeaponHitbox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1141,12 +1148,48 @@ Transform:
   m_GameObject: {fileID: 1685295128}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.052, y: 0.567, z: 0}
+  m_LocalPosition: {x: 0.523, y: 0.153, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1476970148}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1685295130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1685295128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6b224c214a9979459e8e3001b50dda9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  combatComponent: {fileID: 1476970164}
+--- !u!136 &1685295131
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1685295128}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.24766383
+  m_Height: 0.49532765
+  m_Direction: 1
+  m_Center: {x: -0.25233617, y: 0.25233617, z: 0}
 --- !u!1 &1727044381
 GameObject:
   m_ObjectHideFlags: 0
@@ -1274,6 +1317,7 @@ GameObject:
   - component: {fileID: 2142955175}
   - component: {fileID: 2142955174}
   - component: {fileID: 2142955177}
+  - component: {fileID: 2142955179}
   - component: {fileID: 2142955178}
   m_Layer: 6
   m_Name: enemy
@@ -1371,7 +1415,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2142955173}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -1394,7 +1438,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -1432,6 +1476,28 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &2142955179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2142955173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8e8df34694964845a1937c2f30684e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseMaxHealth: 100
+  baseDamage: 10
+  baseMagicDamage: 0
+  baseAttackSpeed: 1
+  baseMovementSpeed: 5
+  baseJumpHeight: 5
+  baseStamina: 100
+  baseCriticalRate: 0.05
+  baseEffectResistance: 0
+  currentHealth: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d158c49e65a13884a84f2833f1225253, type: 3}
-  m_Name: Basic Sword
+  m_Name: Basic_weapon
   m_EditorClassIdentifier: 
   weaponName: New Weapon
   weaponType: 0
   baseDamage: 10
   baseComboSequence:
-  - stepName: Attack 1
+  - stepName: Attack1
     animationTrigger: Attack1
-    inputWindow: 1.095
+    inputWindow: 0
     damageMultiplier: 1
-    hitstopDuration: 0.05
+    hitstopDuration: 0
     vfxOnHitPrefab: {fileID: 0}
     sfxOnHit: {fileID: 0}
     sfxOnSwing: {fileID: 0}
@@ -30,7 +30,7 @@ MonoBehaviour:
     effectPotency: 0
   - stepName: Attack2
     animationTrigger: Attack2
-    inputWindow: 1.14
+    inputWindow: 0
     damageMultiplier: 1
     hitstopDuration: 0
     vfxOnHitPrefab: {fileID: 0}
@@ -42,7 +42,7 @@ MonoBehaviour:
     effectPotency: 0
   - stepName: Attack3
     animationTrigger: Attack3
-    inputWindow: 0.848
+    inputWindow: 0
     damageMultiplier: 1
     hitstopDuration: 0
     vfxOnHitPrefab: {fileID: 0}
@@ -52,7 +52,7 @@ MonoBehaviour:
     effectChance: 0
     effectDuration: 0
     effectPotency: 0
-  animationOverrideController: {fileID: 22100000, guid: 0ce8041092615d046907e21c917d843d, type: 2}
+  animationOverrideController: {fileID: 22100000, guid: e5c6245994b1e6244a6a3df80408e12d, type: 2}
   icon: {fileID: 0}
   attackRange: 1.5
   attackSpeed: 1
