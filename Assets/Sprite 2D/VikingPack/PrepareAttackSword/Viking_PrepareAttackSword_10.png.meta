@@ -159,7 +159,9 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Viking_PrepareAttackSword_10_0: 8450846047024207150
+      Viking_PrepareAttackSword_10_1: 8644936918299389933
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

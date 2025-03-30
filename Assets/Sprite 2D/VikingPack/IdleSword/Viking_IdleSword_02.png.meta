@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Viking_IdleSword_02_0: 344938683033857618
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

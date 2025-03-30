@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Viking_ThrowSpear_03_0: 2503059708603090727
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

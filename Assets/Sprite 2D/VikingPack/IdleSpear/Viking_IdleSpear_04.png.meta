@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Viking_IdleSpear_04_0: -5307431819494795863
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

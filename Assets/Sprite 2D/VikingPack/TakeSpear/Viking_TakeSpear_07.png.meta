@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Viking_TakeSpear_07_0: -2318225242670427792
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
