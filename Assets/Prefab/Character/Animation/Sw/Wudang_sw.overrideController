@@ -7,5 +7,5 @@ AnimatorOverrideController:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Wudang_sw
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 58d05a709141f9644b885777b39bf515, type: 2}
   m_Clips: []

@@ -85,13 +85,14 @@ public class PlayerAnimationComponent : MonoBehaviour
 
      // --- Animation Event Calls ---
      // Các hàm này sẽ được gọi từ Animation Event đặt trên các clip animation
-     public void AE_ActivateHitbox() {
-         combat?.ActivateCurrentAttackHitbox();
-     }
-     public void AE_DeactivateHitbox() {
-          combat?.DeactivateCurrentAttackHitbox();
-     }
-     public void AE_AttackFinished() {
+     // LOẠI BỎ các hàm này vì không còn dùng hitbox thủ công
+     //public void AE_ActivateHitbox() {
+     //    combat?.ActivateCurrentAttackHitbox();
+     //}
+     //public void AE_DeactivateHitbox() {
+     //     combat?.DeactivateCurrentAttackHitbox();
+     //}
+    public void AE_AttackFinished() {
            combat?.OnAttackAnimationEnd();
           // Có thể reset combo ở đây nếu muốn chặt chẽ theo animation
            //GetComponent<ComboComponent>()?.ResetCombo();

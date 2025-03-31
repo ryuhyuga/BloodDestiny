@@ -1,217 +1,184 @@
 using UnityEngine;
-using BloodLotus.Core; // Cần cho IDamageable, DamageType, EffectType
-using BloodLotus.Data; // Cần cho ComboStepData
+using BloodLotus.Core;
+using BloodLotus.Data;
 
-// Gắn vào cùng GameObject với StatsComponent, ComboComponent, PlayerAnimationComponent
 [RequireComponent(typeof(StatsComponent))]
 public class CombatComponent : MonoBehaviour
-{
-    [Header("Component References")]
+{    [Header("Component References")]
     private StatsComponent stats;
-    private EquipmentComponent equipment; // Cần để lấy InnerPower
+    private EquipmentComponent equipment;
 
     [Header("Hitbox Configuration")]
-    [SerializeField] private GameObject attackHitboxObject; // GameObject chứa Collider Hitbox (là con của Player)
-    private bool isHitboxActive = false; // Theo dõi trạng thái hitbox
+    // KHÔNG cần attackHitboxObject nữa
+    // [SerializeField] private GameObject attackHitboxObject;
+    // private bool isHitboxActive = false;
 
     [Header("Combat State")]
-    private ComboStepData currentActiveStep; // Lưu thông tin của bước combo đang có hiệu lực (để HandleHit dùng)
+    private ComboStepData currentActiveStep;
     private float hitstopTimer = 0f;
-    // Biến IsAttacking giờ đây có thể mang ý nghĩa "đang trong một hành động tấn công"
-    // hơn là "không thể nhận lệnh tấn công mới". Tùy thuộc bạn muốn dùng nó để làm gì.
-    // Ví dụ: ngăn di chuyển khi đang tấn công?
     public bool IsPerformingAttackAction { get; private set; } = false;
-
 
     void Awake()
     {
         stats = GetComponent<StatsComponent>();
-        equipment = GetComponent<EquipmentComponent>(); // Lấy EquipmentComponent
+        equipment = GetComponent<EquipmentComponent>();
 
-        if (attackHitboxObject == null)
-        {
-            Debug.LogError("Attack Hitbox Object chưa được gán trong CombatComponent!", this);
-        }
-        else
-        {
-            // Đảm bảo hitbox tắt khi bắt đầu
-            attackHitboxObject.SetActive(false);
-            isHitboxActive = false;
-        }
+        // KHÔNG cần kiểm tra attackHitboxObject nữa
+        // if (attackHitboxObject == null) { ... }
     }
 
     void Update()
     {
-        // Xử lý Hitstop (Giữ nguyên)
         if (hitstopTimer > 0)
         {
-            // Nên kiểm tra nếu game đã pause vì lý do khác
-            if (Time.timeScale > 0f) Time.timeScale = 0f; // Chỉ dừng nếu chưa dừng
+            if (Time.timeScale > 0f) Time.timeScale = 0f;
             hitstopTimer -= Time.unscaledDeltaTime;
             if (hitstopTimer <= 0)
             {
-                Time.timeScale = 1.0f; // Chỉ resume nếu nó đang bị dừng bởi hitstop
-            }
-        }
+                Time.timeScale = 1.0f;
+            }        }
     }
 
-    /// <summary>
-    /// Khởi tạo thông tin cho bước tấn công sắp tới. Được gọi bởi ComboComponent.
-    /// </summary>
-    /// <param name="stepData">Thông tin của bước combo.</param>
     public void InitiateAttackStep(ComboStepData stepData)
     {
-        // Lưu lại thông tin step này để HandleHit và các hàm khác sử dụng
         currentActiveStep = stepData;
-        IsPerformingAttackAction = true; // Đánh dấu đang thực hiện hành động tấn công
-        // Không bật hitbox ở đây, chờ Animation Event
+        IsPerformingAttackAction = true;
+        PerformAttack(); // Gọi PerformAttack ngay khi bắt đầu step
     }
 
-    /// <summary>
-    /// Được gọi bởi Animation Event (AE_ActivateHitbox) để bật hitbox.
-    /// </summary>
-    public void ActivateCurrentAttackHitbox()
+    private void PerformAttack()
     {
-        if (attackHitboxObject != null && currentActiveStep != null) // Chỉ bật khi có step hợp lệ
+        if (equipment == null || equipment.CurrentWeapon == null) return;
+
+        WeaponData weapon = equipment.CurrentWeapon;
+
+        switch (weapon.weaponType)
         {
-            // Debug.Log("Activating Hitbox");
-            attackHitboxObject.SetActive(true);
-            isHitboxActive = true;
-            // Reset danh sách đối tượng đã đánh trúng trong lần kích hoạt này (nếu cần để tránh đánh 1 đối tượng nhiều lần/1 hit)
-            // hitTargetsThisSwing.Clear();
+            case WeaponType.Bow: // Hoặc WeaponType.Staff nếu bạn dùng Staff làm vũ khí tầm xa
+                FireProjectile(weapon);
+                break;
+            default: // Các loại vũ khí cận chiến
+                PerformMeleeAttack(weapon);
+                break;
         }
     }
 
-    /// <summary>
-    /// Được gọi bởi Animation Event (AE_DeactivateHitbox) để tắt hitbox.
-    /// </summary>
-    public void DeactivateCurrentAttackHitbox()
+    private void PerformMeleeAttack(WeaponData weapon)
     {
-        if (attackHitboxObject != null)
+        // Logic tấn công cho vũ khí cận chiến (Sword, Spear, Dagger)
+        float attackRange = weapon.meleeAttackRange; // Lấy từ WeaponData
+        Vector2 attackOrigin = transform.position; // Vị trí bắt đầu tấn công
+        // Debug.Log($"Performing Melee Attack with range: {attackRange}");
+
+        // Tạo hitbox hình tròn và tìm các đối tượng trong phạm vi
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(attackOrigin, attackRange, LayerMask.GetMask("Enemy"));
+
+        // Duyệt qua các đối tượng trúng đòn và gây sát thương
+        foreach (Collider2D hitCollider in hitColliders)
         {
-             // Debug.Log("Deactivating Hitbox");
-            attackHitboxObject.SetActive(false);
-            isHitboxActive = false;
+            IDamageable damageable = hitCollider.GetComponent<IDamageable>();
+            if (damageable != null && hitCollider.gameObject != this.gameObject)
+            {
+                // Tính toán sát thương (ví dụ đơn giản)
+                float damageAmount = stats.Damage * currentActiveStep.damageMultiplier;
+                damageable.TakeDamage(damageAmount, DamageType.Physical, this.gameObject);
+
+                // Áp dụng hiệu ứng và hitstop (nếu có)
+                ApplyEffects(hitCollider.gameObject);                ApplyHitstop(currentActiveStep.hitstopDuration);
+
+                // Hiệu ứng hình ảnh/âm thanh
+                if (currentActiveStep.vfxOnHitPrefab != null)
+                {
+                    Vector3 hitPoint = hitCollider.ClosestPoint(transform.position);
+                    Instantiate(currentActiveStep.vfxOnHitPrefab, hitPoint, Quaternion.identity);
+                }
+                if (currentActiveStep.sfxOnHit != null)
+                {
+                    AudioSource.PlayClipAtPoint(currentActiveStep.sfxOnHit, transform.position);
+                }
+            }
         }
     }
 
-    /// <summary>
-    /// Được gọi bởi script Hitbox.cs khi có va chạm Trigger.
-    /// </summary>
-    public void HandleHit(Collider2D other)
+    private void FireProjectile(WeaponData weapon)
     {
-        // Chỉ xử lý hit nếu hitbox đang active và có thông tin step hiện tại
-        if (!isHitboxActive || currentActiveStep == null) return;
-
-        // TODO: Thêm cơ chế kiểm tra xem đối tượng 'other' đã bị đánh trúng trong lần vung này chưa (nếu cần)
-        // if (hitTargetsThisSwing.Contains(other.gameObject)) return;
-
-        IDamageable damageable = other.GetComponent<IDamageable>();
-        // Kiểm tra xem có phải đối tượng nhận sát thương không và không phải là chính mình
-        if (damageable != null && other.gameObject != this.gameObject)
+        // Logic bắn đạn cho vũ khí tầm xa (Bow, Staff)
+        if (weapon.projectilePrefab == null)
         {
-             // Đánh dấu đã đánh trúng đối tượng này trong lần vung này
-             // hitTargetsThisSwing.Add(other.gameObject);
+            Debug.LogWarning($"Vũ khí {weapon.weaponName} thiếu projectilePrefab!");
+            return;
+        }
 
-            // --- Tính Toán Sát Thương ---
-            float baseDmg = stats != null ? stats.Damage : 0f;
-            // float magicDmg = stats != null ? stats.MagicDamage : 0f; // Lấy từ skill?
-            float multiplier = currentActiveStep.damageMultiplier;
-            // TODO: Tính thêm bonus từ InnerPower, Artifacts, Crit...
-            float finalPhysicalDamage = baseDmg * multiplier;
+        // Tạo projectile
+        GameObject projectile = Instantiate(weapon.projectilePrefab, transform.position, transform.rotation); // Dùng rotation của player
+        Projectile projectileComponent = projectile.GetComponent<Projectile>();
+        Rigidbody2D projectileRb = projectile.GetComponent<Rigidbody2D>();
 
-            Debug.Log($"Hit {other.name}! Dealing {finalPhysicalDamage} Physical damage.");
+        // Thiết lập các thông số cho projectile
+        if (projectileComponent != null)
+        {
+            projectileComponent.damage = stats.Damage * currentActiveStep.damageMultiplier; // Sát thương từ stats và step
+            projectileComponent.lifespan = weapon.projectileLifespan; // Thời gian tồn tại
+            projectileComponent.owner = this.gameObject; // Gán người sở hữu (để tránh tự bắn vào mình)
+        }
 
-            // --- Gây Sát Thương ---
-            damageable.TakeDamage(finalPhysicalDamage, DamageType.Physical, this.gameObject);
-            // if (magicDmg > 0) damageable.TakeDamage(magicDmg, DamageType.Magical, this.gameObject);
-
-            // --- Áp Dụng Hiệu Ứng ---
-            ApplyEffects(other.gameObject); // Áp dụng hiệu ứng từ Inner Power / Step hiện tại
-
-            // --- Kích Hoạt Hitstop ---
-            ApplyHitstop(currentActiveStep.hitstopDuration);
-
-            // --- Tạo Hiệu Ứng Hình Ảnh/Âm Thanh ---
-            if (currentActiveStep.vfxOnHitPrefab != null)
-            {
-                // Lấy điểm va chạm gần nhất để tạo hiệu ứng chính xác hơn
-                Vector3 hitPoint = other.ClosestPoint(attackHitboxObject.transform.position);
-                Instantiate(currentActiveStep.vfxOnHitPrefab, hitPoint, Quaternion.identity);
-            }
-            if (currentActiveStep.sfxOnHit != null)
-            {
-                // Nên dùng hệ thống Audio Manager thay vì PlayClipAtPoint nếu có thể
-                 AudioSource.PlayClipAtPoint(currentActiveStep.sfxOnHit, transform.position);
-            }
-
-            // KHÔNG nên tắt hitbox ngay lập tức ở đây, vì một cú vung có thể trúng nhiều địch.
-            // Hãy để Animation Event AE_DeactivateHitbox xử lý việc tắt.
-            // DeactivateCurrentAttackHitbox();
+        // Bắn projectile theo hướng của nhân vật
+        if (projectileRb != null)
+        {            projectileRb.linearVelocity = transform.right * weapon.projectileSpeed; // Dùng transform.right
         }
     }
 
     private void ApplyEffects(GameObject target)
     {
-        bool effectApplied = false; // Cờ để tránh áp dụng nhiều hiệu ứng cùng lúc?
+        bool effectApplied = false;
 
-        // 1. Hiệu ứng từ Combo Step Data (Ưu tiên?)
         if (currentActiveStep != null && currentActiveStep.effectType != EffectType.None)
         {
             if (Random.value <= currentActiveStep.effectChance)
             {
                 Debug.Log($"Applying effect {currentActiveStep.effectType} from Combo Step to {target.name}");
-                // target.GetComponent<StatusEffectComponent>()?.ApplyEffect(currentActiveStep); // Cần class/struct định nghĩa hiệu ứng
+                // target.GetComponent<StatusEffectComponent>()?.ApplyEffect(currentActiveStep);
                 effectApplied = true;
             }
         }
 
-        // 2. Hiệu ứng từ Inner Power (Chỉ áp dụng nếu chưa có hiệu ứng từ Step?)
         if (!effectApplied && equipment?.CurrentInnerPower?.effectOnHit != EffectType.None)
         {
             if (Random.value <= equipment.CurrentInnerPower.effectChance)
-            {
-                Debug.Log($"Applying effect {equipment.CurrentInnerPower.effectOnHit} from Inner Power to {target.name}");
+            {                Debug.Log($"Applying effect {equipment.CurrentInnerPower.effectOnHit} from Inner Power to {target.name}");
                 // target.GetComponent<StatusEffectComponent>()?.ApplyEffect(equipment.CurrentInnerPower);
                 effectApplied = true;
             }
         }
-
-        // TODO: Áp dụng hiệu ứng từ SkillData nếu combo được mở rộng bởi skill
-    }
-
-    private void ApplyHitstop(float duration)
+    }    private void ApplyHitstop(float duration)
     {
-        if (duration > 0 && Time.timeScale > 0) // Chỉ áp dụng nếu có thời gian và game chưa bị dừng
+        if (duration > 0 && Time.timeScale > 0)
         {
-            hitstopTimer = duration; // Bộ đếm sẽ xử lý trong Update
+            hitstopTimer = duration;
         }
     }
 
-    /// <summary>
-    /// Được gọi bởi Animation Event (AE_AttackAnimationFinished) khi animation tấn công kết thúc.
-    /// </summary>
     public void OnAttackAnimationEnd()
     {
-        // Debug.Log("Attack Animation Ended");
-        // Reset trạng thái đang thực hiện hành động tấn công.
-        // Điều này cho phép các hành động khác (như di chuyển bình thường) có thể được thực hiện trở lại.
         IsPerformingAttackAction = false;
-
-        // Quan trọng: Không nên reset currentActiveStep ở đây,
-        // vì HandleHit có thể vẫn cần thông tin step nếu hitbox còn active trong vài frame cuối.
-        // Việc reset currentActiveStep nên xảy ra khi InitiateAttackStep được gọi cho bước MỚI,
-        // hoặc khi combo hoàn toàn reset bởi ComboComponent.
-
-        // Cũng không nên tắt hitbox ở đây vì AE_DeactivateHitbox đã làm việc đó.
     }
 
-     // Hàm FinishAttack cũ có thể không cần thiết nữa.
-     // public void FinishAttack() { ... }
+    public void FinishAttackSequence()
+    {
+        // Logic dọn dẹp nếu cần
+    }
 
-     // Hàm FinishAttackSequence được gọi từ ComboComponent cũng có thể không cần.
-     public void FinishAttackSequence() {
-         // Có thể dùng để dọn dẹp gì đó nếu cần, nhưng với logic mới thì ít tác dụng.
-         // IsPerformingAttackAction = false; // Đã được xử lý bởi OnAttackAnimationEnd
-     }
+    // Vẽ phạm vi tấn công trong Scene View
+    private void OnDrawGizmosSelected()
+    {
+        if (equipment != null && equipment.CurrentWeapon != null)
+        {
+            WeaponData weapon = equipment.CurrentWeapon;
+            Gizmos.color = Color.red;
+            if (weapon.weaponType != WeaponType.Bow)
+            {
+                Gizmos.DrawWireSphere(transform.position, weapon.meleeAttackRange);            }
+            // Không vẽ gizmo cho projectile
+        }
+    }
 }
