@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 3
   tags:
   - Ground
+  - player
+  - Enemy
+  - Weapon
+  - Interactable
   layers:
   - Default
   - TransparentFX
@@ -14,6 +18,13 @@ TagManager:
   - UI
   - Enemy
   - Ground
+  - Player
+  - PlayerHitbox
+  - PlayerHurtbox
+  - EnemyHurtbox
+  - Interactable
+  - ProjectilePlayer
+  - ProjectileEnemy
   - 
   - 
   - 
@@ -30,14 +41,7 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Ignore Raycast
   m_SortingLayers:
   - name: Default
     uniqueID: 0

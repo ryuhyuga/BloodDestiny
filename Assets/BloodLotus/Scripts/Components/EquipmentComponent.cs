@@ -1,34 +1,37 @@
 using UnityEngine;
 using System.Collections.Generic;
-using BloodLotus.Data; // Giả sử WeaponData, SkillData... ở đây
-using BloodLotus.Core;  // Giả sử StatsComponent ở đây
+using BloodLotus.Data; // Cần cho WeaponData, SkillData...
+using BloodLotus.Core;  // Cần cho StatsComponent...
 
-// Nên yêu cầu có StatsComponent vì RecalculateStats cần nó
 [RequireComponent(typeof(StatsComponent))]
 public class EquipmentComponent : MonoBehaviour
 {
     [Header("Current Equipment")]
-    // Sử dụng [field: SerializeField] để có thể thấy giá trị private trong Inspector (chủ yếu để debug)
     [field: SerializeField] public WeaponData CurrentWeapon { get; private set; }
-    // Tương tự cho các trang bị khác nếu muốn debug trong Inspector
-    [field: SerializeField] public List<SkillData> EquippedSkills { get; private set; } = new List<SkillData>();
+    [field: SerializeField] public List<SkillData> EquippedSkills { get; private set; } = new List<SkillData>(); // Đảm bảo đã khởi tạo List
     [field: SerializeField] public InnerPowerData CurrentInnerPower { get; private set; }
-    // public List<ArtifactData> EquippedArtifacts { get; private set; } = new List<ArtifactData>(); // Bỏ qua Artifact nếu chưa cần
+    // public List<ArtifactData> EquippedArtifacts { get; private set; } = new List<ArtifactData>();
 
     [Header("Component References")]
     private Animator animator;
     private PlayerAnimationComponent playerAnim;
     private StatsComponent stats;
-    private RuntimeAnimatorController baseAnimatorController; // << QUAN TRỌNG: Lưu Controller gốc
+    private RuntimeAnimatorController baseAnimatorController;
 
     [Header("Starting Equipment (Optional)")]
-    [Tooltip("Vũ khí mặc định khi game bắt đầu. Có thể để trống.")]
     public WeaponData startingWeapon;
+
+    [Header("Available Debug Items")] // Đổi tên nhóm để chứa cả vũ khí và skill debug
+    [Tooltip("Danh sách các WeaponData để thử nghiệm bằng phím số (1-9).")]
+    public List<WeaponData> debugWeaponsList = new List<WeaponData>();
+    [Tooltip("Danh sách các SkillData để thử nghiệm bằng phím Shift + số (1-9).")]
+    public List<SkillData> debugSkillsList = new List<SkillData>(); // <<< THÊM DANH SÁCH SKILL DEBUG
 
     // Sự kiện khi trang bị thay đổi
     public event System.Action OnEquipmentChanged;
 
-    private void Awake()
+    // --- Awake, Start, EquipWeapon, UnequipWeapon giữ nguyên như trước ---
+     void Awake()
     {
         // Lấy các component cần thiết
         stats = GetComponent<StatsComponent>();
@@ -42,7 +45,6 @@ public class EquipmentComponent : MonoBehaviour
             if (baseAnimatorController == null)
             {
                 Debug.LogError("Animator trên Player/Child không có RuntimeAnimatorController gốc được gán!", this);
-                // Bạn PHẢI gán một Animator Controller vào component Animator trong Inspector
             }
         }
         else
@@ -59,10 +61,7 @@ public class EquipmentComponent : MonoBehaviour
             EquipWeapon(startingWeapon);
         }
     }
-
-    // --- Quản Lý Vũ Khí ---
-
-    public void EquipWeapon(WeaponData newWeapon)
+     public void EquipWeapon(WeaponData newWeapon)
     {
         // Không làm gì nếu vũ khí mới là null hoặc giống hệt vũ khí đang cầm
         if (newWeapon == null || newWeapon == CurrentWeapon)
@@ -71,10 +70,8 @@ public class EquipmentComponent : MonoBehaviour
              return;
         }
 
-        // (Tùy chọn) Tự động gỡ vũ khí cũ trước khi trang bị mới
         if (CurrentWeapon != null)
         {
-             // Không cần gọi Unequip đầy đủ ở đây, vì các bước cập nhật sẽ được gọi ngay sau đó
              Debug.Log($"Thay thế {CurrentWeapon.weaponName} bằng {newWeapon.weaponName}");
         } else {
              Debug.Log($"Trang bị vũ khí: {newWeapon.weaponName}");
@@ -100,33 +97,63 @@ public class EquipmentComponent : MonoBehaviour
         OnEquipmentChanged?.Invoke(); // <<< Thông báo thay đổi
     }
 
-    // --- Quản Lý Skill (Ví dụ cơ bản) ---
+    // --- CẬP NHẬT HÀM QUẢN LÝ SKILL ---
 
     public void EquipSkill(SkillData newSkill)
     {
-        if (newSkill != null && !EquippedSkills.Contains(newSkill))
+        if (newSkill == null)
+        {
+            Debug.LogWarning("Cố gắng trang bị một Skill null.");
+            return;
+        }
+
+        // (Tùy chọn) Giới hạn số lượng skill có thể trang bị
+        // int maxSkillSlots = 4; // Ví dụ giới hạn 4 skill
+        // if (EquippedSkills.Count >= maxSkillSlots) {
+        //     Debug.LogWarning($"Đã đạt giới hạn số lượng skill ({maxSkillSlots}). Không thể trang bị thêm.");
+        //     return;
+        // }
+
+        if (!EquippedSkills.Contains(newSkill))
         {
             EquippedSkills.Add(newSkill);
-            Debug.Log($"Trang bị Skill: {newSkill.skillName}");
-            // TODO: Có thể cần ApplyAnimationOverrides() nếu skill ảnh hưởng animation
-            RecalculateStats(); // Nếu skill cộng chỉ số
+            Debug.Log($"Trang bị Skill: {newSkill.skillName} (Tổng: {EquippedSkills.Count})");
+            // TODO: Gọi ApplyAnimationOverrides() nếu skill có thể override animation?
+            // ApplyAnimationOverrides();
+            RecalculateStats(); // Gọi nếu skill có thể cộng chỉ số bị động
             OnEquipmentChanged?.Invoke();
+        }
+        else
+        {
+            Debug.LogWarning($"Skill '{newSkill.skillName}' đã được trang bị rồi.");
         }
     }
 
     public void UnequipSkill(SkillData skillToRemove)
     {
-        if (skillToRemove != null && EquippedSkills.Contains(skillToRemove))
+        if (skillToRemove == null)
         {
-            EquippedSkills.Remove(skillToRemove);
-            Debug.Log($"Gỡ bỏ Skill: {skillToRemove.skillName}");
-            // TODO: Có thể cần ApplyAnimationOverrides()
-            RecalculateStats();
+             Debug.LogWarning("Cố gắng gỡ một Skill null.");
+             return;
+        }
+
+        bool removed = EquippedSkills.Remove(skillToRemove); // Thử xóa và xem kết quả
+
+        if (removed)
+        {
+            Debug.Log($"Gỡ bỏ Skill: {skillToRemove.skillName} (Còn lại: {EquippedSkills.Count})");
+            // TODO: Gọi ApplyAnimationOverrides() nếu cần cập nhật animation
+            // ApplyAnimationOverrides();
+            RecalculateStats(); // Tính lại chỉ số
             OnEquipmentChanged?.Invoke();
+        }
+        else
+        {
+            Debug.LogWarning($"Skill '{skillToRemove.skillName}' không được trang bị nên không thể gỡ.");
         }
     }
 
-    // --- Quản Lý Inner Power (Ví dụ) ---
+    // --- Equip/Unequip InnerPower giữ nguyên như trước ---
     public void EquipInnerPower(InnerPowerData newPower)
     {
          if (newPower == CurrentInnerPower) return;
@@ -145,18 +172,12 @@ public class EquipmentComponent : MonoBehaviour
          OnEquipmentChanged?.Invoke();
      }
 
-
-    // ... các hàm Equip/Unequip khác nếu cần ...
-
-
-    // --- Hàm xử lý cốt lõi ---
-
-    private void ApplyAnimationOverrides()
+    // --- ApplyAnimationOverrides, RecalculateStats giữ nguyên như trước ---
+     private void ApplyAnimationOverrides()
     {
         // Kiểm tra điều kiện cần thiết
         if (animator == null || baseAnimatorController == null)
         {
-            // Đã log lỗi trong Awake, không cần log lại liên tục
             return;
         }
 
@@ -169,60 +190,81 @@ public class EquipmentComponent : MonoBehaviour
         }
 
         // 2. TODO: Logic kết hợp/ghi đè bởi Skill
-        // Ví dụ đơn giản: Nếu có skill nào đó có override, dùng của skill thay vì vũ khí?
-        // foreach (var skill in EquippedSkills) {
-        //     if (skill.animationOverrideController != null && skill.IsActive) { // Giả sử có IsActive
-        //         finalOverrideController = skill.animationOverrideController;
-        //         break; // Lấy của skill đầu tiên tìm thấy?
-        //     }
-        // }
+        // foreach (var skill in EquippedSkills) { ... }
 
 
         // 3. Áp dụng Controller cuối cùng hoặc quay về gốc
         if (finalOverrideController != null)
         {
-            // Có override -> Tạo instance mới từ gốc và áp dụng các thay đổi
             var instanceOverride = new AnimatorOverrideController(baseAnimatorController);
             List<KeyValuePair<AnimationClip, AnimationClip>> overrides = new List<KeyValuePair<AnimationClip, AnimationClip>>();
             finalOverrideController.GetOverrides(overrides);
             instanceOverride.ApplyOverrides(overrides);
             animator.runtimeAnimatorController = instanceOverride;
-             // Debug.Log($"Applied Override: {finalOverrideController.name}");
         }
         else
         {
-            // Không có override nào được áp dụng -> Dùng Controller gốc
-            // Chỉ gán lại nếu controller hiện tại không phải là gốc
              if (animator.runtimeAnimatorController != baseAnimatorController) {
                  animator.runtimeAnimatorController = baseAnimatorController;
-                 // Debug.Log("Reverted to Base Animator Controller.");
              }
         }
-
-        // Thông báo cho PlayerAnimationComponent cập nhật cache nếu cần thiết
-        // Điều này quan trọng nếu bạn cache hash của các animation state/trigger
         playerAnim?.CacheAnimationHashes();
     }
 
     private void RecalculateStats()
     {
-        // Yêu cầu StatsComponent tính toán lại tất cả chỉ số
-        // StatsComponent sẽ tự lấy thông tin từ EquipmentComponent này
         stats?.CalculateFinalStats();
     }
 
-    // --- Hàm Debug (Thêm vào để test bằng phím) ---
+
+    // --- CẬP NHẬT HÀM DEBUG UPDATE ---
     void Update()
     {
-        // Ví dụ: Nhấn U để gỡ vũ khí
+        // --- DEBUG VŨ KHÍ (Phím số 1-9) ---
+        for (int i = 0; i < debugWeaponsList.Count; i++)
+        {
+            if (i >= 9) break; // Chỉ hỗ trợ phím 1-9
+            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+            {
+                if (debugWeaponsList[i] != null)
+                {
+                    EquipWeapon(debugWeaponsList[i]);
+                    break;
+                }
+            }
+        }
+        // Gỡ vũ khí (Phím U)
         if (Input.GetKeyDown(KeyCode.U))
         {
             UnequipWeapon();
         }
-        // Ví dụ: Nhấn E để trang bị lại vũ khí khởi đầu
-        if (Input.GetKeyDown(KeyCode.E) && startingWeapon != null && CurrentWeapon == null)
+
+        // --- DEBUG SKILL (Shift + Phím số 1-9) ---
+        for (int i = 0; i < debugSkillsList.Count; i++)
         {
-             EquipWeapon(startingWeapon);
+             if (i >= 9) break; // Chỉ hỗ trợ phím 1-9
+            // Kiểm tra cả Left Shift và Right Shift
+            if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && Input.GetKeyDown(KeyCode.Alpha1 + i))
+            {
+                if (debugSkillsList[i] != null)
+                {
+                    SkillData skillToToggle = debugSkillsList[i];
+                    // Kiểm tra xem skill đã trang bị chưa để Equip hoặc Unequip
+                    if (EquippedSkills.Contains(skillToToggle))
+                    {
+                        UnequipSkill(skillToToggle);
+                    }
+                    else
+                    {
+                        EquipSkill(skillToToggle);
+                    }
+                    break; // Chỉ xử lý một skill mỗi frame
+                }
+            }
         }
+         // Ví dụ: Gỡ Inner Power (Shift + U ?)
+         // if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && Input.GetKeyDown(KeyCode.U)) {
+         //     UnequipInnerPower();
+         // }
     }
 }

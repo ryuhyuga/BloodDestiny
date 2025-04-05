@@ -522,6 +522,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1023810623
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1023810625}
+  - component: {fileID: 1023810624}
+  m_Layer: 0
+  m_Name: GameSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1023810624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023810623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 164c8cac4a6c9a44bb4821687596e672, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1023810625
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023810623}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.020287473, y: -0.09554033, z: 0.08681281}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1043986669
 GameObject:
   m_ObjectHideFlags: 0
@@ -777,7 +821,7 @@ GameObject:
   - component: {fileID: 1476970161}
   - component: {fileID: 1476970160}
   - component: {fileID: 1476970159}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -1041,16 +1085,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8e8df34694964845a1937c2f30684e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseMaxHealth: 100
-  baseDamage: 10
-  baseMagicDamage: 0
-  baseAttackSpeed: 1
-  baseMovementSpeed: 0.1
-  baseJumpHeight: 1
-  baseStamina: 100
-  baseCriticalRate: 0.05
-  baseEffectResistance: 0
+  baseStats:
+    Health: 100
+    Stamina: 100
+    Mana: 50
+    Damage: 20
+    MagicDamage: 0
+    AttackSpeed: 1
+    CriticalRate: 0.05
+    CriticalDamage: 1.5
+    Armor: 5
+    MagicResist: 5
+    MovementSpeed: 5
+    JumpHeight: 5
+    HealthRegen: 0
+    StaminaRegen: 5
+    ManaRegen: 1
   currentHealth: 0
+  equipment: {fileID: 1476970162}
 --- !u!114 &1476970160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1091,10 +1143,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01a0734f0cf810941a3dcacacfe97769, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <CurrentWeapon>k__BackingField: {fileID: 0}
-  <EquippedSkills>k__BackingField: []
-  <CurrentInnerPower>k__BackingField: {fileID: 0}
+  <CurrentWeapon>k__BackingField: {fileID: 11400000, guid: a2a88e98f2cab9d4aaaedf63eebfdae5, type: 2}
+  <EquippedSkills>k__BackingField:
+  - {fileID: 11400000, guid: 205455d21661a23428d78804295c9db9, type: 2}
+  <CurrentInnerPower>k__BackingField: {fileID: 11400000, guid: 42ef380cc06044748be92f80637ed7c4, type: 2}
   startingWeapon: {fileID: 11400000, guid: a2a88e98f2cab9d4aaaedf63eebfdae5, type: 2}
+  debugWeaponsList: []
+  debugSkillsList:
+  - {fileID: 11400000, guid: 205455d21661a23428d78804295c9db9, type: 2}
 --- !u!114 &1476970163
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1120,6 +1176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 501dde43bcc419f45bae631be023f40f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  meleeHitboxObject: {fileID: 1685295128}
 --- !u!1 &1685295128
 GameObject:
   m_ObjectHideFlags: 0
@@ -1129,11 +1186,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1685295129}
-  - component: {fileID: 1685295131}
   - component: {fileID: 1685295130}
-  m_Layer: 0
+  - component: {fileID: 1685295131}
+  m_Layer: 9
   m_Name: WeaponHitbox
-  m_TagString: Untagged
+  m_TagString: player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1147,7 +1204,7 @@ Transform:
   m_GameObject: {fileID: 1685295128}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.523, y: 0.153, z: 0}
+  m_LocalPosition: {x: 0.343, y: 0.333, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1162,17 +1219,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1685295128}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6b224c214a9979459e8e3001b50dda9, type: 3}
+  m_Script: {fileID: 11500000, guid: 52bb7a3b9ca002b438c14df4b24e0b8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  combatComponent: {fileID: 1476970164}
---- !u!136 &1685295131
-CapsuleCollider:
+  ownerCombatComponent: {fileID: 1476970164}
+--- !u!58 &1685295131
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1685295128}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -1181,14 +1241,24 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.24766383
-  m_Height: 0.49532765
-  m_Direction: 1
-  m_Center: {x: -0.25233617, y: 0.25233617, z: 0}
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.5
 --- !u!1 &1727044381
 GameObject:
   m_ObjectHideFlags: 0
@@ -1220,7 +1290,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementComponent: {fileID: 1476970161}
   comboComponent: {fileID: 1476970163}
-  animationComponent: {fileID: 1476970160}
+  animationComponent: {fileID: 0}
 --- !u!4 &1727044383
 Transform:
   m_ObjectHideFlags: 0
@@ -1318,9 +1388,11 @@ GameObject:
   - component: {fileID: 2142955179}
   - component: {fileID: 2142955178}
   - component: {fileID: 2142955180}
+  - component: {fileID: 2142955181}
+  - component: {fileID: 2142955182}
   m_Layer: 6
   m_Name: enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1429,7 +1501,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.008402735, y: 0.029409148}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -1439,7 +1511,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.42, y: 0.28}
+  m_Size: {x: 0.51242906, y: 0.5152735}
   m_EdgeRadius: 0
 --- !u!95 &2142955178
 Animator:
@@ -1475,16 +1547,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8e8df34694964845a1937c2f30684e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseMaxHealth: 100
-  baseDamage: 10
-  baseMagicDamage: 0
-  baseAttackSpeed: 1
-  baseMovementSpeed: 5
-  baseJumpHeight: 5
-  baseStamina: 100
-  baseCriticalRate: 0.05
-  baseEffectResistance: 0
+  baseStats:
+    Health: 100
+    Stamina: 100
+    Mana: 50
+    Damage: 10
+    MagicDamage: 0
+    AttackSpeed: 1
+    CriticalRate: 0.05
+    CriticalDamage: 1.5
+    Armor: 5
+    MagicResist: 5
+    MovementSpeed: 5
+    JumpHeight: 5
+    HealthRegen: 0
+    StaminaRegen: 5
+    ManaRegen: 1
   currentHealth: 0
+  equipment: {fileID: 0}
 --- !u!114 &2142955180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1497,6 +1577,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 501dde43bcc419f45bae631be023f40f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  meleeHitboxObject: {fileID: 0}
+--- !u!114 &2142955181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2142955173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df55c105672b9904085f77957daa0850, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyData: {fileID: 11400000, guid: 668846b268f2bd64faa6d56d8badbe51, type: 2}
+--- !u!50 &2142955182
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2142955173}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1509,3 +1630,4 @@ SceneRoots:
   - {fileID: 1226032354}
   - {fileID: 1043986673}
   - {fileID: 1856046129}
+  - {fileID: 1023810625}

@@ -92,6 +92,30 @@ public class PlayerAnimationComponent : MonoBehaviour
      //public void AE_DeactivateHitbox() {
      //     combat?.DeactivateCurrentAttackHitbox();
      //}
+
+     public void AE_ActivateHitbox()
+    {
+        combat?.ActivateMeleeHitbox(); // <<< GỌI HÀM MELEE
+    }
+
+    // Vô hiệu hóa hitbox cận chiến
+    public void AE_DeactivateHitbox()
+    {
+        combat?.DeactivateMeleeHitbox(); // <<< GỌI HÀM MELEE
+    }
+
+    // Bắn đạn (Thêm Event này vào animation tầm xa)
+    public void AE_FireProjectile() // <<< THÊM HÀM NÀY
+    {
+         combat?.FireProjectileNow();
+    }
+
+    // Animation tấn công kết thúc
+    public void AE_AttackAnimationFinished()
+    {
+        combat?.OnAttackAnimationEnd(); // Giữ nguyên
+    }
+
     public void AE_AttackFinished() {
            combat?.OnAttackAnimationEnd();
           // Có thể reset combo ở đây nếu muốn chặt chẽ theo animation

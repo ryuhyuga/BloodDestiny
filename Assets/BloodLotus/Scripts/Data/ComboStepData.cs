@@ -1,5 +1,7 @@
 using UnityEngine; // Cần cho GameObject, AudioClip
 using BloodLotus.Core; // Cần cho EffectType
+using BloodLotus.Systems; // Cần cho SkillProgressionSystem
+using BloodLotus.Data; // Cần cho ComboStepData, SkillData, WeaponData
 
 namespace BloodLotus.Data
 {

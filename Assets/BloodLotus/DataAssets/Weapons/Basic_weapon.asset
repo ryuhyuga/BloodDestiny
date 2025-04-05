@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Basic_weapon
   m_EditorClassIdentifier: 
   weaponName: New Weapon
-  weaponType: 0
+  weaponType: 1
   baseDamage: 10
   baseComboSequence:
   - stepName: Attack1
@@ -52,10 +52,13 @@ MonoBehaviour:
     effectChance: 0
     effectDuration: 0
     effectPotency: 0
+  directStatBonuses: []
   animationOverrideController: {fileID: 22100000, guid: e5c6245994b1e6244a6a3df80408e12d, type: 2}
   icon: {fileID: 0}
-  attackRange: 1.5
-  attackSpeed: 1
+  meleeAttackRange: 1.5
+  projectilePrefab: {fileID: 0}
+  projectileSpeed: 10
+  projectileLifespan: 3
   specialEffect: 0
   effectChance: 0
   effectDuration: 0

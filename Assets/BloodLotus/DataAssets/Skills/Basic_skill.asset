@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: Basic_skill
   m_EditorClassIdentifier: 
   skillName: New Skill
-  compatibleWeaponType: 0
+  compatibleWeaponType: 1
   requiredLevel: 1
   comboExtensionSteps:
   - stepName: 
     animationTrigger: 
     inputWindow: 0
-    damageMultiplier: 0
+    damageMultiplier: 1
     hitstopDuration: 0
     vfxOnHitPrefab: {fileID: 0}
     sfxOnHit: {fileID: 0}
@@ -31,7 +31,7 @@ MonoBehaviour:
   - stepName: 
     animationTrigger: 
     inputWindow: 0
-    damageMultiplier: 0
+    damageMultiplier: 1
     hitstopDuration: 0
     vfxOnHitPrefab: {fileID: 0}
     sfxOnHit: {fileID: 0}
@@ -43,7 +43,7 @@ MonoBehaviour:
   - stepName: 
     animationTrigger: 
     inputWindow: 0
-    damageMultiplier: 0
+    damageMultiplier: 1
     hitstopDuration: 0
     vfxOnHitPrefab: {fileID: 0}
     sfxOnHit: {fileID: 0}
@@ -55,7 +55,7 @@ MonoBehaviour:
   - stepName: 
     animationTrigger: 
     inputWindow: 0
-    damageMultiplier: 0
+    damageMultiplier: 1
     hitstopDuration: 0
     vfxOnHitPrefab: {fileID: 0}
     sfxOnHit: {fileID: 0}
@@ -64,24 +64,15 @@ MonoBehaviour:
     effectChance: 0
     effectDuration: 0
     effectPotency: 0
-  - stepName: 
-    animationTrigger: 
-    inputWindow: 0
-    damageMultiplier: 0
-    hitstopDuration: 0
-    vfxOnHitPrefab: {fileID: 0}
-    sfxOnHit: {fileID: 0}
-    sfxOnSwing: {fileID: 0}
-    effectType: 0
-    effectChance: 0
-    effectDuration: 0
-    effectPotency: 0
+  levelToUnlockExtension: 1
   magicDamage: 5
   damageType: 1
   effectOnHit: 0
   effectChance: 0
   effectDuration: 0
-  animationOverrideController: {fileID: 0}
+  effectPotency: 0
+  passiveStatBonuses: []
+  animationOverrideController: {fileID: 22100000, guid: 7bbdb53137f0cee47b6c7f080e5a4893, type: 2}
   icon: {fileID: 0}
   description: 
   manaCost: 30
