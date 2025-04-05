@@ -1,11 +1,9 @@
 using UnityEngine;
-using BloodLotus.Data; // Cần cho EnemyData
-using BloodLotus.Systems; // Cần cho SkillProgressionSystem
-using BloodLotus.Core; // Cần cho StatsComponent
+using BloodLotus.Data;
+using BloodLotus.Systems;
+using BloodLotus.Core;
 
-// Gắn vào GameObject của Enemy
 [RequireComponent(typeof(StatsComponent))]
-// [RequireComponent(typeof(EnemyDataHolder))] // Đảm bảo có cách lấy EnemyData
 public class EnemyDeathHandler : MonoBehaviour
 {
     private StatsComponent stats;
@@ -42,79 +40,100 @@ public class EnemyDeathHandler : MonoBehaviour
          }
      }
 
-    public void SetLastAttacker(GameObject attacker) {
-        if (attacker != null) {
-            lastAttacker = attacker;
+    public void SetLastAttacker(GameObject attacker)
+    {
+        // Debug.Log($"SetLastAttacker called with: {attacker?.name ?? "NULL"}"); // Thêm log nếu cần
+        // Chỉ gán nếu attacker là Player (hoặc logic khác tùy game)
+        if (attacker != null && attacker.CompareTag("Player")) // <<< Thêm kiểm tra Tag ở đây cho chắc
+        {
+             lastAttacker = attacker;
+        } else {
+             // Có thể bạn muốn reset lastAttacker nếu bị tấn công bởi thứ khác?
+             // lastAttacker = null;
         }
     }
+    private bool deathHandled = false; // Thêm biến cờ ở đầu lớp EnemyDeathHandler
 
     private void HandleDeath()
     {
-        Debug.LogError("--- EnemyDeathHandler HandleDeath CALLED ---"); 
+
+         if (deathHandled) return; // Nếu đã xử lý chết rồi thì thoát ngay
+            deathHandled = true; // Đặt cờ là đã xử lý
+
+        Debug.LogError($"--- [{this.gameObject.name}] EnemyDeathHandler.HandleDeath CALLED! (Instance ID: {this.GetInstanceID()}) ---");
+
+    // ... Kiểm tra enemyData, lastAttacker ...
+        Debug.LogError($"--- [{this.gameObject.name}] EnemyDeathHandler.HandleDeath CALLED! ---");
+
+        // --- Kiểm tra điều kiện tiên quyết ---
         if (enemyData == null) {
-             Debug.LogError("Không thể xử lý chết vì EnemyData là null!", this);
+             Debug.LogError($"[{this.gameObject.name}] HandleDeath ABORTED: enemyData is null.");
+             // Có thể hủy ngay lập tức để tránh lỗi thêm
+             // Destroy(gameObject);
              return;
         }
+         // --- KIỂM TRA lastAttacker NGAY ĐẦU ---
+        if (lastAttacker == null) {
+            Debug.LogError($"[{this.gameObject.name}] HandleDeath ABORTED: lastAttacker is null. Không thể xử lý phần thưởng.");
+             // Vẫn có thể tiếp tục xử lý animation chết và destroy nếu muốn
+        }
+        // ------------------------------------
 
-        Debug.Log($"{gameObject.name} ({enemyData.enemyName}) is defeated by {(lastAttacker != null ? lastAttacker.name : "Unknown")}!");
+        // Log thông tin người giết (sau khi đã kiểm tra)
+        Debug.Log($"{gameObject.name} ({enemyData.enemyName}) was defeated by {lastAttacker?.name ?? "Unknown Attacker"}!");
 
-        // --- Xử lý khi Enemy chết ---
-        // 1. Tắt components
+        // --- Xử lý trạng thái chết ---
+        // Tắt components
         Collider2D mainCollider = GetComponent<Collider2D>();
         if (mainCollider != null) mainCollider.enabled = false;
         var rb = GetComponent<Rigidbody2D>();
         if (rb != null) rb.simulated = false;
+        // Tắt AI, Movement...
         // GetComponent<AIBrain>()?.enabled = false;
         // GetComponent<MovementComponent>()?.enabled = false;
 
-        // 2. Chơi animation chết
+        // Chơi animation chết
         var animator = GetComponentInChildren<Animator>();
-        if (animator != null) {
-             try { animator.SetTrigger("Death"); }
-             catch (System.Exception e) { Debug.LogWarning($"Không thể kích hoạt trigger 'Death': {e.Message}", this); }
-        }
+        if (animator != null) { /* ... SetTrigger("Death") ... */ }
 
-        // --- XỬ LÝ PHẦN THƯỞNG ---
-        if (lastAttacker != null) // Chỉ xử lý phần thưởng nếu biết ai giết
+        // --- XỬ LÝ PHẦN THƯỞNG (Chỉ khi có lastAttacker) ---
+        if (lastAttacker != null)
         {
-             // 3. Gọi SkillProgressionSystem để cộng EXP SKILL
-             if (SkillProgressionSystem.Instance != null)
-             {
+            // 1. Cộng EXP cho SKILL (Thông qua SkillProgressionSystem)
+            if (SkillProgressionSystem.Instance != null)
+            {
+                 Debug.Log($"[{this.gameObject.name}] Calling SkillProgressionSystem for {enemyData.enemyName}, killer: {lastAttacker.name}");
                  SkillProgressionSystem.Instance.HandleEnemyDefeated(enemyData, lastAttacker);
-             } else {
+            }
+            else
+            {
                   Debug.LogWarning("SkillProgressionSystem.Instance bị thiếu, không thể cộng EXP Skill.");
-             }
+            }
 
-             // 4. <<< THÊM LẠI PHẦN NÀY: CỘNG EXP CHO PLAYER >>>
-             if (lastAttacker.CompareTag("Player")) // Kiểm tra chắc chắn là Player
-             {
-                 var playerStats = lastAttacker.GetComponent<StatsComponent>();
-                 if (playerStats != null)
-                 {
-                     float expReward = enemyData.experienceReward; // Lấy EXP từ EnemyData
-                     if (expReward > 0)
-                     {
-                         Debug.Log($"Attempting to add {expReward} EXP to Player.");
-                         playerStats.AddExperience(expReward); // Gọi hàm cộng EXP trên StatsComponent của Player
-                     } else {
-                         Debug.LogWarning($"Enemy {enemyData.name} có experienceReward <= 0.");
-                     }
-                 } else {
-                      Debug.LogWarning($"Không tìm thấy StatsComponent trên lastAttacker (Player) '{lastAttacker.name}'. Không thể cộng EXP Player.");
-                 }
-             }
-             // ----------------------------------------------
+            // 2. Cộng EXP cho PLAYER LEVEL (BỎ ĐI NẾU CHỈ MUỐN CỘNG EXP SKILL)
+            /* // << BẮT ĐẦU COMMENT OUT PHẦN NÀY
+            if (lastAttacker.CompareTag("Player"))
+            {
+                var playerStats = lastAttacker.GetComponent<StatsComponent>();
+                if (playerStats != null)
+                {
+                    float expReward = enemyData.baseExperienceReward;
+                    if (expReward > 0)
+                    {
+                        Debug.Log($"Attempting to add {expReward} EXP to Player Level.");
+                        playerStats.AddExperience(expReward);
+                    } else { //... log warning ... }
+                } else { //... log warning ... }
+            }
+            */ // << KẾT THÚC COMMENT OUT PHẦN NÀY
 
-              // 5. TODO: Gọi LootSystem để xử lý rơi đồ
-             // LootSystem.Instance?.GenerateLoot(enemyData.lootTable, transform.position);
-        } else {
-             Debug.LogWarning("lastAttacker là null, không thể xử lý phần thưởng (EXP, Loot).");
+            // 3. TODO: Gọi LootSystem
+            // ...
         }
+        // Không cần else ở đây vì lỗi thiếu attacker đã được log ở trên
 
-
-        // 6. Hủy GameObject sau một khoảng thời gian
+        // Hủy GameObject
         float destroyDelay = 3f;
-        // TODO: Lấy thời gian từ animation chết
         Destroy(gameObject, destroyDelay);
     }
 }

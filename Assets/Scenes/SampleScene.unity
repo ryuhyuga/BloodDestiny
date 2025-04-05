@@ -551,6 +551,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 164c8cac4a6c9a44bb4821687596e672, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  expScalingFactorK: 0.5
 --- !u!4 &1023810625
 Transform:
   m_ObjectHideFlags: 0
@@ -1103,6 +1104,9 @@ MonoBehaviour:
     ManaRegen: 1
   currentHealth: 0
   equipment: {fileID: 1476970162}
+  currentLevel: 1
+  currentExperience: 0
+  experienceToNextLevel: 100
 --- !u!114 &1476970160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1144,8 +1148,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <CurrentWeapon>k__BackingField: {fileID: 11400000, guid: a2a88e98f2cab9d4aaaedf63eebfdae5, type: 2}
-  <EquippedSkills>k__BackingField:
-  - {fileID: 11400000, guid: 205455d21661a23428d78804295c9db9, type: 2}
+  <EquippedSkills>k__BackingField: []
   <CurrentInnerPower>k__BackingField: {fileID: 11400000, guid: 42ef380cc06044748be92f80637ed7c4, type: 2}
   startingWeapon: {fileID: 11400000, guid: a2a88e98f2cab9d4aaaedf63eebfdae5, type: 2}
   debugWeaponsList: []
@@ -1390,6 +1393,7 @@ GameObject:
   - component: {fileID: 2142955180}
   - component: {fileID: 2142955181}
   - component: {fileID: 2142955182}
+  - component: {fileID: 2142955183}
   m_Layer: 6
   m_Name: enemy
   m_TagString: Enemy
@@ -1565,6 +1569,9 @@ MonoBehaviour:
     ManaRegen: 1
   currentHealth: 0
   equipment: {fileID: 0}
+  currentLevel: 1
+  currentExperience: 0
+  experienceToNextLevel: 100
 --- !u!114 &2142955180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1618,6 +1625,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &2142955183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2142955173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31d3d4fe737c87347a837fea0b332e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dataHolder: {fileID: 2142955181}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
